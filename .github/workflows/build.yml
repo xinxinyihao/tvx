@@ -43,7 +43,7 @@ jobs:
           ABI=$(echo "${{ matrix.abi }}" | sed 's/./\U&/')
           BRAND=$(echo "${{ matrix.brand }}" | sed 's/./\U&/')
           MODE=$(echo "${{ matrix.mode == 'normal' && 'normal' || 'python' }}" | sed 's/./\U&/')
-          ./gradlew assemble${ABI}${BRAND}${MODE}Release --build-cache --parallel --daemon
+          ./gradlew assemble${ABI}${BRAND}${MODE}Release -Pchaquopy.buildPython=$(which python3) --build-cache --parallel --daemon
 
       - name: Collect APK
         run: |
