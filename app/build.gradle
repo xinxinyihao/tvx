@@ -115,8 +115,8 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+        implementation 'org.xwalk:xwalk_shared_library:23.53.589.4'
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     // for WebDAV
     implementation('com.github.thegrizzlylabs:sardine-android:0.8') {
         exclude group: 'com.squareup.okhttp3'
