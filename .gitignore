@@ -4,6 +4,7 @@ Thumbs.db
 # Built application files
 *.apk
 *.aar
+!xwalk-core/*.aar
 *.ap_
 *.aab
 
