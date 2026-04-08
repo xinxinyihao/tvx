@@ -62,10 +62,22 @@ jobs:
       - name: Collect APK
         run: |
           mkdir -p output
-          find app/build/outputs/apk/ -name "*Release.apk" -exec cp {} output/ \;
-          # 如果文件名中包含 java，将其重命名为更容易识别的名字
+          # 搜索生成的 APK 并移动到 output 目录
+          find app/build/outputs/apk/ -name "*.apk" -exec cp {} output/ \;
+          
+          # 检查是否真的搜到了 APK，避免 mv 报错
           cd output
-          for f in *.apk; do mv "$f" "${f//-java/}"; done
+          if ls *.apk >/dev/null 2>&1; then
+            for f in *.apk; do
+              # 只有当文件名包含 -java 时才重命名
+              if [[ "$f" == *"-java"* ]]; then
+                mv "$f" "${f//-java/}"
+              fi
+            done
+          else
+            echo "Warning: No APK files found in app/build/outputs/apk/"
+            exit 1
+          fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
