@@ -99,11 +99,6 @@ android {
         disable 'UnsafeOptInUsageError'
     }
 
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
 }
 
 dependencies {
@@ -115,7 +110,7 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
-        implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
+        implementation files('libs/xwalk_shared_library-23.53.589.4.aar')
         implementation fileTree(dir: 'libs', include: ['*.jar'])
         implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     // for WebDAV
