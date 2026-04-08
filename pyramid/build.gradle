@@ -11,7 +11,11 @@ android {
         targetSdkVersion 28
 
         python {
-            buildPython("D:/Programs/Python/Python38/python.exe")
+            if (project.hasProperty("chaquopy.buildPython")) {
+                buildPython(project.getProperty("chaquopy.buildPython"))
+            } else {
+                buildPython("D:/Programs/Python/Python38/python.exe")
+            }
             pip {
                 install "lxml"
                 install "ujson"
