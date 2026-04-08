@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         abi: [armeabi, arm64]
+        brand: [generic, hisense]
         mode: [normal, python]
     
     steps:
@@ -33,13 +34,16 @@ jobs:
       - name: Create local.properties
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "chaquopy.buildPython=$(which python3)" >> local.properties
 
       - name: Build with Gradle
-        # 根据矩阵动态构建变体
-        # 变体名称由于 flavorDimensions 为 [abi, brand, mode]
-        # 组合示例: armeabiGenericNormalRelease, arm64GenericPythonRelease
+        # 变体名称格式: [Abi][Brand][Mode]Release
+        # 首字母需大写，处理 normal -> Normal, python -> Python, generic -> Generic, hisense -> Hisense
         run: |
-          ./gradlew assemble${{ matrix.abi }}Generic${{ matrix.mode == 'python' && 'Python' || 'Normal' }}Release --build-cache --parallel --daemon
+          ABI=$(echo "${{ matrix.abi }}" | sed 's/./\U&/')
+          BRAND=$(echo "${{ matrix.brand }}" | sed 's/./\U&/')
+          MODE=$(echo "${{ matrix.mode == 'normal' && 'normal' || 'python' }}" | sed 's/./\U&/')
+          ./gradlew assemble${ABI}${BRAND}${MODE}Release --build-cache --parallel --daemon
 
       - name: Collect APK
         run: |
@@ -49,7 +53,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TVBox-${{ matrix.abi }}-${{ matrix.mode }}
+          name: TVX-${{ matrix.abi }}-${{ matrix.brand }}-${{ matrix.mode }}
           path: output/*.apk
 
   release:
