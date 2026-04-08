@@ -41,19 +41,31 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           echo "chaquopy.buildPython=$(which python3)" >> local.properties
 
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > release.jks
+
       - name: Build with Gradle
         # 变体名称格式: [Abi][Brand][Mode]Release
-        # 首字母需大写，处理 normal -> Normal, python -> Python, generic -> Generic, hisense -> Hisense
         run: |
           ABI=$(echo "${{ matrix.abi }}" | sed 's/./\U&/')
           BRAND=$(echo "${{ matrix.brand }}" | sed 's/./\U&/')
           MODE=$(echo "${{ matrix.mode == 'normal' && 'normal' || 'python' }}" | sed 's/./\U&/')
-          ./gradlew assemble${ABI}${BRAND}${MODE}Release -Pchaquopy.buildPython=$(which python3) --build-cache --parallel --daemon
+          ./gradlew assemble${ABI}${BRAND}${MODE}Release \
+            -Pchaquopy.buildPython=$(which python3) \
+            -Pandroid.injected.signing.store.file=$(pwd)/release.jks \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEY_STORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
+            --build-cache --parallel --daemon
 
       - name: Collect APK
         run: |
           mkdir -p output
-          find app/build/outputs/apk/ -name "*.apk" -exec cp {} output/ \;
+          find app/build/outputs/apk/ -name "*Release.apk" -exec cp {} output/ \;
+          # 如果文件名中包含 java，将其重命名为更容易识别的名字
+          cd output
+          for f in *.apk; do mv "$f" "${f//-java/}"; done
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

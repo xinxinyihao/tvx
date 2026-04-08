@@ -31,7 +31,9 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-
+            if (project.hasProperty('android.injected.signing.store.file')) {
+                signingConfig signingConfigs.debug // 占位，Gradle 会注入实际值
+            }
         }
     }
 
